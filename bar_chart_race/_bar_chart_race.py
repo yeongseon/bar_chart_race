@@ -390,8 +390,7 @@ class _BarChartRace(CommonChart):
         if self.tick_template:
             value_axis.set_major_formatter(self.tick_template)
 
-
-        ax.grid(True, axis='x', color='#D3DCE6', linewidth=5, zorder=0)
+        ax.grid(True, axis='x', color='#D3DCE6', linewidth=0, zorder=0)
 
         # ax.tick_params(labelsize=self.tick_label_font['size'], length=0, pad=2)
         ax.tick_params(axis='x', length=12, labelsize=self.tick_label_font['size'], pad=1, color='#F8FAFF')
@@ -416,7 +415,7 @@ class _BarChartRace(CommonChart):
             ax.set_yscale(self.scale)
             ax.tick_params(axis='x', labelrotation=30)
 
-        ax.spines['left'].set_linewidth(5)
+        ax.spines['left'].set_linewidth(0)
         ax.spines['left'].set_color('#D3DCE6')
         ax.spines['right'].set_linewidth(0)
         ax.spines['top'].set_linewidth(0)
