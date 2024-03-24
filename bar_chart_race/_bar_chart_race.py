@@ -396,7 +396,8 @@ class _BarChartRace(CommonChart):
         # ax.tick_params(labelsize=self.tick_label_font['size'], length=0, pad=2)
         ax.tick_params(axis='x', length=12, labelsize=self.tick_label_font['size'], pad=1, color='#F8FAFF')
         ax.tick_params(axis='y', length=12, labelsize=self.tick_label_font['size'], pad=1, color='#ffffff00')
-        ax.set_facecolor('#F8FAFF')
+        # ax.set_facecolor('#F8FAFF')
+        ax.set_facecolor('#FFFFFF')
 
         ax.minorticks_off()
         ax.set_axisbelow(True)
