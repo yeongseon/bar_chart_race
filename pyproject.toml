@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bar_chart_race"
+version = "0.1.0"
+description = "Create animated bar chart races using matplotlib or plotly"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "MIT"
+authors = [
+  { name = "Ted Petrou", email = "petrou.theodore@gmail.com" }
+]
+keywords = ["visualization", "animation", "bar chart", "race", "matplotlib", "pandas", "plotly"]
+dependencies = [
+  "pandas>=0.24",
+  "matplotlib>=3.1",
+  "pillow>=9.5.0"
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://github.com/dexplo/bar_chart_race"
+
+[tool.setuptools.packages.find]
+include = ["bar_chart_race"]
