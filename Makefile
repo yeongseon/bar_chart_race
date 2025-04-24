@@ -1,4 +1,4 @@
-.PHONY: setup install run clean build
+.PHONY: setup install run clean build test
 
 UV_BIN := $(shell command -v uv 2>/dev/null)
 
@@ -34,4 +34,6 @@ build:
 	test -d .venv || make setup
 	uv run python -m build
 
-
+test:
+	@echo "✅ Running tests..."
+	PYTHONPATH=src pytest tests
