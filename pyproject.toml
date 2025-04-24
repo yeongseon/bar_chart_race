@@ -26,5 +26,9 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/dexplo/bar_chart_race"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.setuptools.packages.find]
+where = ["src"]
 include = ["bar_chart_race"]

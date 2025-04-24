@@ -21,7 +21,7 @@ setup: install-uv
 # Run the demo script
 run:
 	@echo "🚀 Running bar_chart_race example..."
-	.venv/bin/python examples/run_demo.py
+	PYTHONPATH=src .venv/bin/python examples/run_demo.py
 
 # Clean up the virtual environment and dist
 clean:
@@ -31,6 +31,7 @@ clean:
 # Build the package using uv-installed build module
 build:
 	@echo "📦 Building distribution files..."
-	uv pip install build
+	test -d .venv || make setup
 	uv run python -m build
+
 
