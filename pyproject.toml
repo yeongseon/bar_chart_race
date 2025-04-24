@@ -4,13 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bar_chart_race"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Create animated bar chart races using matplotlib or plotly"
 readme = "README.md"
 requires-python = ">=3.7"
 license = "MIT"
 authors = [
-  { name = "Ted Petrou", email = "petrou.theodore@gmail.com" }
+  { name = "Yeongseon Choe", email = "yeongsoen.choe@gmail.com" }
 ]
 keywords = ["visualization", "animation", "bar chart", "race", "matplotlib", "pandas", "plotly"]
 dependencies = [
@@ -27,8 +27,11 @@ classifiers = [
 Homepage = "https://github.com/dexplo/bar_chart_race"
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["bar_chart_race"]
+
+[tool.setuptools.dynamic]
+version = { attr = "bar_chart_race.__version__" }
