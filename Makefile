@@ -15,7 +15,7 @@ endif
 setup: install-uv
 	@echo "📦 Setting up the project with uv..."
 	uv venv
-	uv pip install -e .
+	uv pip install -e .[dev]
 	uv pip install build
 
 # Run the demo script

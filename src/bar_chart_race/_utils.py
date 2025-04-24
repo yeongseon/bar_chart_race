@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import polars as pl
 import pandas as pd
 from matplotlib import image as mimage
 
@@ -33,94 +34,105 @@ def load_dataset(name='covid19'):
     parse_dates = [index_col] if index_col else None
     return pd.read_csv(url, index_col=index_col, parse_dates=parse_dates)
 
-def prepare_wide_data(df, orientation='h', sort='desc', n_bars=None, interpolate_period=False, 
-                      steps_per_period=10, compute_ranks=True):
+def prepare_wide_data(df: pd.DataFrame, orientation='h', sort='desc', n_bars=None,
+                      interpolate_period=False, steps_per_period=10, compute_ranks=True):
     '''
-    Prepares 'wide' data for bar chart animation. 
-    Returns two DataFrames - the interpolated values and the interpolated ranks
-    
-    There is no need to use this function directly to create the animation. 
-    You can pass your DataFrame directly to `bar_chart_race`.
-
-    This function is useful if you want to view the prepared data without 
-    creating an animation.
+    Prepares 'wide' data for bar chart animation using polars internally.
+    Returns interpolated values and optionally ranks, as pandas DataFrames.
 
     Parameters
     ----------
     df : pandas DataFrame
-        Must be a 'wide' pandas DataFrame where each row represents a 
-        single period of time. 
-        Each column contains the values of the bars for that category. 
-        Optionally, use the index to label each time period.
+        Input wide-format DataFrame (index: time, columns: categories, values)
 
-    orientation : 'h' or 'v', default 'h'
-        Bar orientation - horizontal or vertical
+    orientation : 'h' or 'v'
+        Direction of animation bars (horizontal/vertical)
 
-    sort : 'desc' or 'asc', default 'desc'
-        Choose how to sort the bars. Use 'desc' to put largest bars on 
-        top and 'asc' to place largest bars on bottom.
+    sort : 'desc' or 'asc'
+        Order of bars to appear
 
-    n_bars : int, default None
-        Choose the maximum number of bars to display on the graph.
-        By default, use all bars. New bars entering the race will 
-        appear from the bottom or top.
+    n_bars : int or None
+        Max number of bars to show at once
 
-    interpolate_period : bool, default `False`
-        Whether to interpolate the period. Only valid for datetime or
-        numeric indexes. When set to `True`, for example, 
-        the two consecutive periods 2020-03-29 and 2020-03-30 with 
-        `steps_per_period` set to 4 would yield a new index of
-        2020-03-29 00:00:00
-        2020-03-29 06:00:00
-        2020-03-29 12:00:00
-        2020-03-29 18:00:00
-        2020-03-30 00:00:00
+    interpolate_period : bool
+        Whether to interpolate between time steps
 
-    steps_per_period : int, default 10
-        The number of steps to go from one time period to the next. 
-        The bars will grow linearly between each period.
+    steps_per_period : int
+        Number of interpolation steps between each period
 
-    compute_ranks : bool, default True
-        When `True` return both the interpolated values and ranks DataFrames
-        Otherwise just return the values
+    compute_ranks : bool
+        If True, also return the rank DataFrame
 
     Returns
     -------
-    A tuple of DataFrames. The first is the interpolated values and the second
-    is the interpolated ranks.
-
-    Examples
-    --------
-    df_values, df_ranks = bcr.prepare_wide_data(df)
+    (values_df, ranks_df) or values_df : Tuple of pandas DataFrames or just one
     '''
     if n_bars is None:
         n_bars = df.shape[1]
 
-    df_values = df.reset_index()
-    df_values.index = df_values.index * steps_per_period
-    new_index = range(df_values.index[-1] + 1)
-    df_values = df_values.reindex(new_index)
+    # Step 1: Flatten index and convert to polars
+    df_reset = df.reset_index()
+    index_col = df_reset.columns[0]  # e.g., 'date' or 'year'
+    df_pl = pl.from_pandas(df_reset)
+
+    # Step 2: Expand index for interpolation (ex: 5 periods * 10 steps = 41 total)
+    orig_len = df_pl.height
+    new_len = (orig_len - 1) * steps_per_period + 1
+    step_index = pl.Series(name="__step__", values=range(new_len))
+    df_pl = df_pl.with_columns(step_index)
+
+    # Step 3: Interpolate index values (time or numeric)
     if interpolate_period:
-        if df_values.iloc[:, 0].dtype.kind == 'M':
-            first, last = df_values.iloc[[0, -1], 0]
-            dr = pd.date_range(first, last, periods=len(df_values))
-            df_values.iloc[:, 0] = dr
+        # Date interpolation (e.g., 2020-01-01 to 2020-01-02 over 4 steps)
+        if pd.api.types.is_datetime64_any_dtype(df[index_col]):
+            dr = pd.date_range(df.index[0], df.index[-1], periods=new_len)
+            df_pl = df_pl.with_columns(pl.Series(name=index_col, values=dr))
         else:
-            df_values.iloc[:, 0] = df_values.iloc[:, 0].interpolate()
+            # Numeric interpolation
+            interpolated_index = pd.Series(df.index).interpolate(limit_direction='both')
+            steps = pd.Series(
+                np.linspace(interpolated_index.iloc[0], interpolated_index.iloc[-1], new_len)
+            )
+            df_pl = df_pl.with_columns(pl.Series(name=index_col, values=steps))
     else:
-        df_values.iloc[:, 0] = df_values.iloc[:, 0].fillna(method='ffill')
-    
-    df_values = df_values.set_index(df_values.columns[0])
+        # No interpolation: use forward fill to maintain constant time/index
+        df_pl = df_pl.with_columns(
+            pl.col(index_col).fill_null(strategy="forward")
+        )
+
+    # Step 4: Remove helper step index and set time index
+    df_pl = df_pl.drop("__step__")
+
+    # Step 5: Interpolate all columns linearly (category values)
+    value_cols = [col for col in df_pl.columns if col != index_col]
+    df_vals = df_pl.select([
+        pl.col(index_col)
+    ] + [
+        pl.col(col).interpolate() for col in value_cols
+    ])
+
+    # Step 6: Compute ranks if needed
     if compute_ranks:
-        df_ranks = df_values.rank(axis=1, method='first', ascending=False).clip(upper=n_bars + 1)
+        ranks = df_vals.drop(index_col).rank(method="first", reverse=True)
+        ranks = ranks.select([
+            pl.col(col).clip_max(n_bars + 1) for col in ranks.columns
+        ])
+
+        # Flip rank (1 = top) depending on sort/orientation
         if (sort == 'desc' and orientation == 'h') or (sort == 'asc' and orientation == 'v'):
-            df_ranks = n_bars + 1 - df_ranks
-        df_ranks = df_ranks.interpolate()
-    
-    df_values = df_values.interpolate()
-    if compute_ranks:
-        return df_values, df_ranks
-    return df_values
+            ranks = ranks.select([
+                (n_bars + 1 - pl.col(col)).alias(col) for col in ranks.columns
+            ])
+
+        # Combine ranks with index column
+        df_ranks = pl.concat([df_vals.select(index_col), ranks], how="horizontal")
+
+        # Return both values and ranks as pandas
+        return df_vals.to_pandas().set_index(index_col), df_ranks.to_pandas().set_index(index_col)
+
+    # Only return interpolated values
+    return df_vals.to_pandas().set_index(index_col)
+
 
 def prepare_long_data(df, index, columns, values, aggfunc='sum', orientation='h', 
                       sort='desc', n_bars=None, interpolate_period=False, 
