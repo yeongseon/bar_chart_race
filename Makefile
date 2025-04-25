@@ -1,4 +1,4 @@
-.PHONY: setup install demo clean build test
+.PHONY: setup install demo clean build test format
 
 UV_BIN := $(shell command -v uv 2>/dev/null)
 
@@ -37,3 +37,9 @@ build:
 test:
 	@echo "✅ Running tests..."
 	PYTHONPATH=src pytest tests
+
+format:
+	@echo "🛠️ Formatting code with black and isort..."
+	black .
+	isort .
+

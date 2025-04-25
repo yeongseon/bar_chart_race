@@ -3,8 +3,8 @@ from io import BytesIO, TextIOWrapper
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from matplotlib import rcParams
-from matplotlib import animation
+from matplotlib import animation, rcParams
+
 
 class FuncAnimation(animation.FuncAnimation):
 
@@ -33,15 +33,15 @@ class FuncAnimation(animation.FuncAnimation):
             If the *embed_limit* is exceeded, this returns the string
             "Video too large to embed."
         """
-        VIDEO_TAG = r'''<video {size} {options}>
+        VIDEO_TAG = r"""<video {size} {options}>
   <source type="video/mp4" src="data:video/mp4;base64,{video}">
   Your browser does not support the video tag.
-</video>'''
+</video>"""
         # Cache the rendering of the video as HTML
-        if not hasattr(self, '_base64_video'):
+        if not hasattr(self, "_base64_video"):
             # Save embed limit, which is given in MB
             if embed_limit is None:
-                embed_limit = rcParams['animation.embed_limit']
+                embed_limit = rcParams["animation.embed_limit"]
 
             # Convert from MB to bytes
             embed_limit *= 1024 * 1024
@@ -52,10 +52,12 @@ class FuncAnimation(animation.FuncAnimation):
                 path = Path(tmpdir, "temp.m4v")
                 # We create a writer manually so that we can get the
                 # appropriate size for the tag
-                Writer = animation.writers[rcParams['animation.writer']]
-                writer = Writer(codec='h264',
-                                bitrate=rcParams['animation.bitrate'],
-                                fps=1000. / self._interval)
+                Writer = animation.writers[rcParams["animation.writer"]]
+                writer = Writer(
+                    codec="h264",
+                    bitrate=rcParams["animation.bitrate"],
+                    fps=1000.0 / self._interval,
+                )
                 self.save(str(path), writer=writer, savefig_kwargs=savefig_kwargs)
                 # Now open and base64 encode.
                 vid64 = base64.encodebytes(path.read_bytes())
@@ -66,23 +68,27 @@ class FuncAnimation(animation.FuncAnimation):
                     "Animation movie is %s bytes, exceeding the limit of %s. "
                     "If you're sure you want a large animation embedded, set "
                     "the animation.embed_limit rc parameter to a larger value "
-                    "(in MB).", vid_len, embed_limit)
+                    "(in MB).",
+                    vid_len,
+                    embed_limit,
+                )
             else:
-                self._base64_video = vid64.decode('ascii')
-                self._video_size = 'width="{}" height="{}"'.format(
-                        *writer.frame_size)
+                self._base64_video = vid64.decode("ascii")
+                self._video_size = 'width="{}" height="{}"'.format(*writer.frame_size)
 
         # If we exceeded the size, this attribute won't exist
-        if hasattr(self, '_base64_video'):
+        if hasattr(self, "_base64_video"):
             # Default HTML5 options are to autoplay and display video controls
-            options = ['controls', 'autoplay']
+            options = ["controls", "autoplay"]
 
             # If we're set to repeat, make it loop
-            if hasattr(self, 'repeat') and self.repeat:
-                options.append('loop')
+            if hasattr(self, "repeat") and self.repeat:
+                options.append("loop")
 
-            return VIDEO_TAG.format(video=self._base64_video,
-                                    size=self._video_size,
-                                    options=' '.join(options))
+            return VIDEO_TAG.format(
+                video=self._base64_video,
+                size=self._video_size,
+                options=" ".join(options),
+            )
         else:
-            return 'Video too large to embed.'
+            return "Video too large to embed."
