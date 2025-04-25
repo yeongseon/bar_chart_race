@@ -5,7 +5,7 @@ from ._bar_chart_race import bar_chart_race
 if importlib.util.find_spec("plotly"):
     from ._bar_chart_race_plotly import bar_chart_race_plotly
 
-from . import _pandas_accessor
+from . import _pandas_accessor  # noqa: F401
 from ._line_chart_race import line_chart_race
 from ._utils import load_dataset, prepare_long_data, prepare_wide_data
 

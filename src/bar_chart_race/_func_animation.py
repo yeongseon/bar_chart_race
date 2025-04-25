@@ -1,9 +1,11 @@
 import base64
-from io import BytesIO, TextIOWrapper
+import logging
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from matplotlib import animation, rcParams
+
+_log = logging.getLogger(__name__)
 
 
 class FuncAnimation(animation.FuncAnimation):

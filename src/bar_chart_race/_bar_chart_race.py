@@ -5,7 +5,6 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib import ticker
 from matplotlib.colors import Colormap
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage, TextArea
 from PIL import Image  # for opening images
@@ -489,7 +488,6 @@ class _BarChartRace(CommonChart):
 
         # bar_colors is now a list
         n = len(bar_colors)
-        orig_bar_colors = bar_colors
         if self.df_values.shape[1] > n:
             bar_colors = bar_colors * (self.df_values.shape[1] // n + 1)
         bar_colors = np.array(bar_colors[: self.df_values.shape[1]])

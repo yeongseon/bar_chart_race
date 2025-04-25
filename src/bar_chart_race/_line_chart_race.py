@@ -1,14 +1,9 @@
-import warnings
-from pathlib import Path
-
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 from matplotlib import colors as mcolors
 from matplotlib import dates as mdates
 from matplotlib import image as mimage
 from matplotlib import patches as mpatches
-from matplotlib import ticker
 from matplotlib.collections import LineCollection
 
 from ._common_chart import CommonChart
@@ -472,7 +467,7 @@ class _LineChartRace(CommonChart):
         s = self.df_values.iloc[0]  # current Series
         s_all = self.all_values.iloc[0]
         if len(self.df_others) > 0:
-            s_others = self.df_others.iloc[0]
+            self.df_others.iloc[0]
         x, y = s.name, s.to_dict()
         if self.is_x_date:
             x = mdates.date2num(x)

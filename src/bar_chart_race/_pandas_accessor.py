@@ -1,3 +1,4 @@
+import importlib
 import re
 
 import pandas as pd
@@ -197,7 +198,6 @@ _BCR.prepare_long_data.__doc__ = re.sub(
     "df : .*(?=filename :)", "", pld.__doc__, flags=re.S
 )
 
-import importlib
 
 if importlib.util.find_spec("plotly"):
     from ._bar_chart_race_plotly import bar_chart_race_plotly as bcrp

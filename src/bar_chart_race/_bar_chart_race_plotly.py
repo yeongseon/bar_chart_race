@@ -281,7 +281,6 @@ class _BarChartRace:
 
         # bar_colors is now a list
         n = len(bar_colors)
-        orig_bar_colors = bar_colors
         if self.df_values.shape[1] > n:
             bar_colors = bar_colors * (self.df_values.shape[1] // n + 1)
         bar_colors = np.array(bar_colors[: self.df_values.shape[1]])
@@ -338,7 +337,7 @@ class _BarChartRace:
         slider_steps = []
         for i in range(len(self.df_values)):
             bar_locs = self.df_ranks.iloc[i].values
-            top_filt = (bar_locs >= 0) & (bar_locs < self.n_bars + 1)
+            (bar_locs >= 0) & (bar_locs < self.n_bars + 1)
             bar_vals = self.df_values.iloc[i].values
             bar_vals[bar_locs == 0] = 0
             bar_vals[bar_locs == self.n_bars + 1] = 0

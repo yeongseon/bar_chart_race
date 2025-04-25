@@ -87,7 +87,7 @@ class CommonChart:
         if fig is not None:
             if not fig.axes:
                 raise ValueError("The figure passed to `fig` must have an axes")
-            ax = fig.axes[0]
+            fig.axes[0]
         else:
             fig = self.create_figure()
         return fig
