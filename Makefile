@@ -46,4 +46,3 @@ format:
 lint:
 	@echo "🔍 Running pre-commit on all files..."
 	pre-commit run --all-files
-
