@@ -1,4 +1,4 @@
-.PHONY: setup install demo clean build test format
+.PHONY: setup install demo clean build test format lint
 
 UV_BIN := $(shell command -v uv 2>/dev/null)
 
@@ -42,4 +42,8 @@ format:
 	@echo "🛠️ Formatting code with black and isort..."
 	black .
 	isort .
+
+lint:
+	@echo "🔍 Running pre-commit on all files..."
+	pre-commit run --all-files
 
