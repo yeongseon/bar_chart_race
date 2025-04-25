@@ -24,7 +24,11 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = [
+  "pytest>=8.0",
+  "black>=24.0",
+  "isort>=5.12"
+]
 
 [project.urls]
 Homepage = "https://github.com/dexplo/bar_chart_race"
@@ -38,3 +42,24 @@ include = ["bar_chart_race"]
 
 [tool.setuptools.dynamic]
 version = { attr = "bar_chart_race.__version__" }
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+  | __pycache__
+  | \.mypy_cache
+  | \.pytest_cache
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = [".venv", "build", "dist"]
