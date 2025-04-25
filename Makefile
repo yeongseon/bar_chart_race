@@ -1,4 +1,4 @@
-.PHONY: setup install run clean build test
+.PHONY: setup install demo clean build test
 
 UV_BIN := $(shell command -v uv 2>/dev/null)
 
@@ -19,9 +19,9 @@ setup: install-uv
 	uv pip install build
 
 # Run the demo script
-run:
+demo:
 	@echo "🚀 Running bar_chart_race example..."
-	PYTHONPATH=src .venv/bin/python examples/run_demo.py
+	PYTHONPATH=src .venv/bin/python demo/demo.py
 
 # Clean up the virtual environment and dist
 clean:

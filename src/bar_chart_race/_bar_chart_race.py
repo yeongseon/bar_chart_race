@@ -22,7 +22,7 @@ def get_image_label(root_folder,name,size):
     path = os.path.join(root_folder , name)
     #im = plt.imread(path)
     img = Image.open(path)
-    img.thumbnail((size,size),Image.ANTIALIAS)
+    img.thumbnail((size, size), Image.Resampling.LANCZOS)
     return img
 
 def get_image_name(col_name):
