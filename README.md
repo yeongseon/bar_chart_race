@@ -27,7 +27,9 @@ virtualenv venv
 Install `bar_chart_race` using `pip`:
 
 ```bash
-pip install git+https://github.com/programiz/bar_chart_race.git@master
+git clone https://github.com/yeongseon/bar_chart_race.git
+cd bar_chart_race
+pip install -e .
 ```
 
 ---
@@ -138,4 +140,27 @@ bcr.bar_chart_race(
     bar_texttemplate='{x:.2f}',
     period_template='{x:.0f}',
 )
+```
+
+### CLI Example
+
+```bash
+bar-chart-race --input data.csv --output output.mp4 --title "Bar Chart Race Demo"
+```
+
+### With Configuration File
+
+You can use a config.toml file:
+```
+input = "data.csv"
+output = "output.mp4"
+title = "Custom Race"
+width = 1280
+height = 720
+duration = 10
+```
+
+Then run:
+```bash
+bar-chart-race --config config.toml
 ```
